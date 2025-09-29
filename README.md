@@ -6,9 +6,12 @@ This is not just a search app - it's an intelligent agent that gets smarter with
 APP-URL: https://findwithram.netlify.app/
 
 <img width="90" height="20" alt="image" src="https://github.com/user-attachments/assets/7482aa76-d9ca-45db-92ef-ea8494d53fe9" />
+
 https://drive.google.com/file/d/1Z_-WeBGqBPpwm2dFV8ijJ4NUzG07BISF/view?usp=drivesdk
 
+
 <img width="92" height="20" alt="image" src="https://github.com/user-attachments/assets/6f8d20b8-a411-4238-a489-03ecf0b65928" />
+
 
 🧠 AI Agent Intelligence
 

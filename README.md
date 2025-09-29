@@ -72,6 +72,8 @@ Background Updates: Agent automatically refreshes data to maintain accuracy
 
 🏗️ Agent Architecture
 
+<img width="1840" height="316" alt="image" src="https://github.com/user-attachments/assets/d8ac400d-449c-4447-90b3-72cb80868a8f" />
+
 🤖 AI Agent Components:
 
 Decision Engine (IF Node): Intelligent routing between cache and live data

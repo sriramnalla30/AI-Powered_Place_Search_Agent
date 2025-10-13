@@ -1,0 +1,389 @@
+{
+  "name": "place searching",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I",
+          "mode": "list",
+          "cachedResultName": "Place Directory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Area",
+              "lookupValue": "={{$node[\"Webhook\"].json[\"body\"][\"area\"]}}"
+            },
+            {
+              "lookupColumn": "Type",
+              "lookupValue": "={{$node[\"Webhook\"].json[\"body\"][\"type\"]}}"
+            },
+            {
+              "lookupColumn": "City",
+              "lookupValue": "={{$node[\"Webhook\"].json[\"body\"][\"city\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -464,
+        416
+      ],
+      "id": "7606aa85-1fb1-4bbf-9aa3-017f833a87b0",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uuwg3OTu4qeOLCaG",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "place-search",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        416
+      ],
+      "id": "171967f9-f9cb-477b-a6fd-9950b64b7167",
+      "name": "Webhook",
+      "webhookId": "fdb94a80-82d1-47a0-8339-f97eda92d624",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://overpass-api.de/api/interpreter",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "=data",
+              "value": "={{ '[out:json];area[\"name:en\"=\"' + $node[\"Webhook\"].json[\"body\"][\"city\"] + '\"][\"boundary\"=\"administrative\"]->.a;(node[\"amenity\"=\"' + $node[\"Webhook\"].json[\"body\"][\"type\"] + '\"](area.a);way[\"amenity\"=\"' + $node[\"Webhook\"].json[\"body\"][\"type\"] + '\"](area.a);relation[\"amenity\"=\"' + $node[\"Webhook\"].json[\"body\"][\"type\"] + '\"](area.a););out center;' }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16,
+        256
+      ],
+      "id": "4db8475e-4f6a-4aad-bf7d-49a31282d325",
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0a4ac45-a039-4aec-b5d7-6b8c7e147d01",
+              "leftValue": "= {{$json}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        416
+      ],
+      "id": "6729c22c-8ea5-4a52-bb58-8bab2e5a7a42",
+      "name": "If",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        432
+      ],
+      "id": "b0e25e9b-b7c4-4064-85b1-c549eb0e7a43",
+      "name": "Respond to Webhook",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I",
+          "mode": "list",
+          "cachedResultName": "Place Directory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWY-myX2c3dOuJna461nepq-5xniJC6nJZORY7qHQ1I/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Last Updated": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm\") }}",
+            "Contact": "={{$json[\"tags\"][\"phone\"] || $json[\"tags\"][\"contact:phone\"] || \"\"}}\n",
+            "Address": "={{ [\n  $json[\"tags\"][\"addr:street\"] || \"\",\n  $json[\"tags\"][\"addr:neighbourhood\"] || \"\",\n  $json[\"tags\"][\"addr:suburb\"] || \"\",\n  $json[\"tags\"][\"addr:city\"] || \"\",\n  $json[\"tags\"][\"addr:state\"] || \"\",\n  $json[\"tags\"][\"addr:postcode\"] || \"\",\n  $json[\"tags\"][\"addr:country\"] || \"\"\n].filter(Boolean).join(\", \") }}",
+            "Name": "={{$json[\"tags\"][\"name\"] || \"\"}}\n",
+            "Type": "={{$node[\"Webhook\"].json[\"body\"][\"type\"]}}",
+            "Area": "={{$node[\"Webhook\"].json[\"body\"][\"area\"]}}"
+          },
+          "matchingColumns": [
+            "Area"
+          ],
+          "schema": [
+            {
+              "id": "Area",
+              "displayName": "Area",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact",
+              "displayName": "Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        624,
+        256
+      ],
+      "id": "c08ecbac-81b5-4d14-90d2-b87a11ec9783",
+      "name": "Append row in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uuwg3OTu4qeOLCaG",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "elements ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "108c2398-4424-4461-ac81-4138f5c5bb26",
+      "name": "Split Out",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const want = ($node[\"Webhook\"].json[\"body\"][\"area\"] || \"\").toLowerCase();\nconst now = $now.toFormat(\"yyyy-MM-dd HH:mm\");\nreturn $items().map(i => i.json).filter(j => {\nconst t = j.tags || {};\nconst hay = [t.name, t[\"addr:suburb\"], t[\"addr:neighbourhood\"], t[\"addr:quarter\"], t[\"addr:street\"]].filter(Boolean).join(\" \").toLowerCase();\nreturn want ? hay.includes(want) : true;}).map(j => {\nconst t = j.tags || {};\nconst addr = [t[\"addr:street\"], t[\"addr:neighbourhood\"], t[\"addr:suburb\"], t[\"addr:city\"], t[\"addr:state\"], t[\"addr:postcode\"], t[\"addr:country\"]].filter(Boolean).join(\", \");\nreturn { json: {\n  City: $node[\"Webhook\"].json[\"body\"][\"city\"],\n  Area: $node[\"Webhook\"].json[\"body\"][\"area\"],\n  Type: $node[\"Webhook\"].json[\"body\"][\"type\"],\n  Name: t.name || \"\",\n  Address: addr,\n  Contact: t.phone || t[\"contact:phone\"] || \"\",\n  \"Last Updated\": now,\n}};\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        256
+      ],
+      "id": "751727b1-1959-4878-a01b-f4c066cdccbe",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c06b81fa-641c-4837-b10b-53d6e5e03768",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5d840ca865f4ec74af6a3daed9972a66f80322a84aea86a70bb661ab285d159f"
+  },
+  "id": "fL1vrt5nz2ONd5Ji",
+  "tags": []
+}

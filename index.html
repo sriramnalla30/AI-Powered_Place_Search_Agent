@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 Place Search - Find Your Perfect Location</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: #667eea;
+        }
+
+        .loading .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            padding: 0 30px 40px;
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .results-count {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .result-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            color: #555;
+        }
+
+        .result-item strong {
+            margin-right: 8px;
+            color: #333;
+            min-width: 80px;
+        }
+
+        .result-address {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #2196f3;
+            position: relative;
+        }
+
+        .result-contact {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border-left: 4px solid #4caf50;
+            position: relative;
+        }
+
+        .action-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-maps {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-maps:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+
+        .btn-call {
+            background: #34a853;
+            color: white;
+        }
+
+        .btn-call:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 168, 83, 0.3);
+        }
+
+        .btn-directions {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-directions:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-results h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 30px;
+            color: #c62828;
+            text-align: center;
+        }
+
+        .debug-info {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px;
+            font-size: 12px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-section, .results {
+                padding: 30px 20px;
+            }
+            
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏠 Place Search</h1>
+            <p>Find restaurants, shops, and services in your area</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="form-section">
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="city">🏙️ City</label>
+                    <input type="text" id="city" placeholder="Enter city name (e.g., Mumbai, Delhi)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="area">📍 Area</label>
+                    <input type="text" id="area" placeholder="Enter area name (e.g., Bandra, CP)" required>
+                </div>
+
+                <div class="form-group">
+  <label for="type">🏪 Type</label>
+  <input type="text" id="type" placeholder="Enter place type (e.g., restaurant, shop)" required style="text-transform: lowercase;" pattern="[a-z]+" title="Only lowercase letters allowed">
+</div>
+
+                <button type="submit" class="search-btn" id="searchBtn">
+                    🔍 Search Places
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching for places...</p>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="results-header">
+                <h2>Search Results</h2>
+                <p class="results-count" id="resultsCount"></p>
+            </div>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+document.getElementById('type').addEventListener('input', function(e) {
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+    this.value = this.value.toLowerCase();
+    this.setSelectionRange(start, end);
+  });
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values and normalize to lowercase for consistent matching
+            const city = document.getElementById('city').value.trim();
+            const area = document.getElementById('area').value.trim();
+            const type = document.getElementById('type').value.trim();
+            
+            // Store capitalized versions for display
+            const displayCity = city.charAt(0).toUpperCase() + city.slice(1);
+            const displayArea = area.charAt(0).toUpperCase() + area.slice(1);
+            const displayType = type.charAt(0).toUpperCase() + type.slice(1);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            // Remove any previous errors or debug info
+            const existingError = document.querySelector('.error');
+            if (existingError) {
+                existingError.remove();
+            }
+            const existingDebug = document.querySelector('.debug-info');
+            if (existingDebug) {
+                existingDebug.remove();
+            }
+            
+            try {
+                console.log('Sending request with data:', { city, area, type });
+                
+                // Make API call to n8n webhook
+                const response = await fetch('https://sriram-n8n-place-search.onrender.com/webhook/place-search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        city: city,
+                        area: area,
+                        type: type
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if response has content
+                const responseText = await response.text();
+                console.log('Raw response text:', responseText);
+                
+                let data;
+                if (responseText.trim() === '') {
+                    console.warn('Empty response from server');
+                    data = [];
+                } else {
+                    try {
+                        data = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        throw new Error(`Invalid JSON response: ${parseError.message}`);
+                    }
+                }
+                
+                console.log('Parsed response data:', data);
+                
+                // Display results
+                displayResults(data, displayCity, displayArea, displayType);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.innerHTML = `
+                    <h3>❌ Search Failed</h3>
+                    <p>Unable to search places. Please check your connection and try again.</p>
+                    <small>Error: ${error.message}</small>
+                `;
+                document.querySelector('.container').appendChild(errorDiv);
+            }
+        });
+        
+        function displayResults(data, city, area, type) {
+            console.log('displayResults called with:', data);
+            
+            const resultsDiv = document.getElementById('results');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            // Handle different response formats
+            let places = [];
+            
+            if (Array.isArray(data)) {
+                places = data;
+            } else if (data && Array.isArray(data.data)) {
+                places = data.data;
+            } else if (data && Array.isArray(data.results)) {
+                places = data.results;
+            } else if (data && typeof data === 'object') {
+                places = [data];
+            } else {
+                places = [];
+            }
+            
+            console.log('Final places array:', places);
+            
+            // Display all results from n8n
+            const displayPlaces = places;
+            
+            // Update results count
+            resultsCount.textContent = `Found ${displayPlaces.length} ${type}(s) in ${area}, ${city}`;
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            if (displayPlaces.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>😔 No Places Found</h3>
+                        <p>No ${type} found in ${area}, ${city}.</p>
+                        <p>Try searching with different criteria or check the spelling.</p>
+                    </div>
+                `;
+            } else {
+                // Display each result
+                displayPlaces.forEach((place, index) => {
+                    console.log(`Displaying place ${index + 1}:`, place);
+                    
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+                    
+                    const address = place.Address || place.address || '';
+                    const contact = place.Contact || place.contact || '';
+                    const name = place.Name || place.name || 'N/A';
+                    
+                    resultCard.innerHTML = `
+                        <div class="result-name">${name}</div>
+                        <div class="result-details">
+                            <div class="result-item">
+                                <strong>🏙️ City:</strong> ${place.City || place.city || 'N/A'}
+                            </div>
+                            <div class="result-item">
+                                <strong>📍 Area:</strong> ${place.Area || place.area || 'N/A'}
+                            </div>
+                            <div class="result-item">
+                                <strong>🏪 Type:</strong> ${place.Type || place.type || 'N/A'}
+                            </div>
+                        </div>
+                        ${address ? `
+                            <div class="result-address">
+                                <strong>📍 Address:</strong> ${address}
+                            </div>
+                        ` : ''}
+                        ${contact && contact !== 'empty' ? `
+                            <div class="result-contact">
+                                <strong>📞 Contact:</strong> ${contact}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="action-buttons">
+                            ${address ? `
+                                <a href="#" class="btn btn-maps" onclick="openGoogleMaps('${address.replace(/'/g, "\'")}', '${name.replace(/'/g, "\'")}')">
+                                    🗺️ View on Maps
+                                </a>
+                                <a href="#" class="btn btn-directions" onclick="getDirections('${address.replace(/'/g, "\'")}')">
+                                    🧭 Get Directions
+                                </a>
+                            ` : ''}
+                            ${contact && contact !== 'empty' ? `
+                                <a href="tel:${contact}" class="btn btn-call">
+                                    📞 Call Now
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(resultCard);
+                });
+            }
+            
+            // Show results
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Google Maps Functions
+        function openGoogleMaps(address, placeName) {
+            // Create Google Maps search URL
+            const query = encodeURIComponent(`${placeName}, ${address}`);
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+            
+            // Open in new tab
+            window.open(mapsUrl, '_blank');
+        }
+        
+        function getDirections(address) {
+            // Get user's current location and open directions
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const destination = encodeURIComponent(address);
+                        const directionsUrl = `https://www.google.com/maps/dir/${lat},${lng}/${destination}`;
+                        window.open(directionsUrl, '_blank');
+                    },
+                    function(error) {
+                        // If location access denied, just open maps with destination
+                        const destination = encodeURIComponent(address);
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${destination}`;
+                        window.open(mapsUrl, '_blank');
+                    }
+                );
+            } else {
+                // Browser doesn't support geolocation
+                const destination = encodeURIComponent(address);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${destination}`;
+                window.open(mapsUrl, '_blank');
+            }
+        }
+        
+        // Add example suggestions
+        const cityInput = document.getElementById('city');
+        const areaInput = document.getElementById('area');
+        const typeInput = document.getElementById('type');
+        
+        cityInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'e.g., Mumbai, Delhi, Pune, Chennai';
+            }
+        });
+        
+        areaInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'e.g., Bandra, CP, Koramangala';
+            }
+        });
+        
+        typeInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'e.g., restaurant, cafe, shop, hospital';
+            }
+        });
+    </script>
+</body>
+</html>
